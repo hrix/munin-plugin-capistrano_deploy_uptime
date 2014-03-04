@@ -1,0 +1,55 @@
+#!/bin/sh
+# -*- sh -*-
+
+: << =cut
+
+=head1 NAME
+
+uptime - Plugin to measure uptime.
+
+=head1 NOTES
+
+Especially the average and max values on the bigger graphs (yearly) can be interesting.
+
+=head1 AUTHOR
+
+Contributed by Nicolas Salles
+
+=head1 LICENSE
+
+GPLv2
+
+=head1 MAGIC MARKERS
+
+ #%# family=auto
+ #%# capabilities=autoconf
+
+=cut
+
+. $MUNIN_LIBDIR/plugins/plugin.sh
+
+if [ "$1" = "autoconf" ]; then
+        echo yes
+        exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+        echo 'graph_title Deploy-uptime'
+        echo 'graph_args --base 1000 -l 0 '
+        echo 'graph_scale no'
+        echo 'graph_vlabel min'
+        echo 'graph_category somepath-deploy'
+        echo 'app1_uptime.label app1'
+        echo 'app1_uptime.draw LINE2'
+        echo 'app2_uptime.label app2'
+        echo 'app2_uptime.draw LINE2'
+        exit 0
+fi
+
+function file_uptime() {
+  expr \( `date +%s` - `date '+%s' -r $1|sed -e 's/^0//'` \) / 60
+}
+
+echo "app1_uptime.value " `file_uptime "/var/somepath/app1/current"`
+echo "app2_uptime.value " `file_uptime "/var/somepath/app2/current"`
